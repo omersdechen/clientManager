@@ -1,4 +1,4 @@
-from time import sleep
+from time import sleep, time
 import socket
 
 # import client.ping_client as ping_client
@@ -11,10 +11,18 @@ def ping_server(sock):
     """Function to perform pinging the server."""
     while True:
         sleep(1)  # Ping every 5 seconds
-        message = "ping+time" #later i will add timestamp
+        first_time = time()
+        message = f"ping"
         sock.sendall(message.encode())
         data = sock.recv(1024)  # Receive the response from the server
-        print(f"Server response: {data.decode()}")
+        ret_time = time()
+        resp = data.decode()
+        # print(f"Server response: {resp}")
+        data_parts = resp.split(',')
+        to_server = (float(data_parts[1]) - first_time) * 1000
+        round_time = (float(ret_time - first_time)) * 1000
+        print(f"time: {round_time}, to server: {to_server} ms")
+
 
 # Start the client
 def start_client():

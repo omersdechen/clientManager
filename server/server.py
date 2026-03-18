@@ -1,5 +1,6 @@
 import socket
 import threading
+from time import time
 
 # import server.ping_server as ping_server
 
@@ -7,13 +8,22 @@ import threading
 HOST = '127.0.0.1'  # Server IP (localhost)
 PORT = 65432        # Port for client connections
 
+
+def print_address(addr):
+    """Helper function to print client address."""
+    print(f"from {addr[0]}:{addr[1]}")
+
 def handle_ping(conn, addr):
     """Function to handle ping messages."""
+    """TODO: kill connection if client is not responding for a certain amount of time."""
     while True:
         try:
             msg = conn.recv(1024).decode()
-            print(f"Received ping: {msg}")
-            conn.sendall(f"Pong: {msg}, <our_time>".encode())
+            
+            print(f"Received: {msg}")
+            print_address(addr)
+            ans = f"pong,{str(time())}"
+            conn.sendall(ans.encode())
         except ConnectionResetError:
             print(f"Client {addr} has disconnected.")
             break
@@ -48,7 +58,7 @@ def start_server():
                 conn, addr = server_socket.accept()  # Accept a client connection
                 thread = threading.Thread(target=handle_client, args=(conn, addr))
                 thread.start()  # Start a new thread for each client
-                print(f"Active connections: {threading.activeCount() - 1}")
+                # print(f"Active connections: {threading.activeCount() - 1}")
         except KeyboardInterrupt:
             print("\nShutting down server...")
 
